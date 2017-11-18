@@ -16,7 +16,7 @@ function graphics:import(data)
 
     -- Object to import
     local ret = {}
-
+    
     -- Magic
     if love.filesystem.read(data, 4) ~= "GFX1" then
         return false, "graphics:import(): File not valid."
@@ -61,15 +61,22 @@ function graphics:import(data)
     end
 
     for i = 0, #animation - 1 do
-        local a = animation[i + 1].name
-        local n = ""
+        local a, b = animation[i + 1].name, animation[i + 1].sprite
+        local n, s = "", ""
+        
         for i = 0, 3 do
             n = n .. string.char(a[i])
         end
         
+        for i = 0, 3 do
+            s = s .. string.char(b[i])
+        end
+        
         ret.animation[n] = {
-            offset = animation[i + 1].offset,
-            frames = animation[i + 1].frames,
+            sprite = s,
+            state  = "stop",
+            speed  = 1,
+            frame  = 1,
         }
     end
 

@@ -143,11 +143,11 @@ function export_animation(v, ofs, num)
         
         -- Check data types
         assert(type(t.name) == "string"  , e)
-        assert(type(t.offset) == "number", e)
+        assert(type(t.sprite) == "string", e)
         assert(type(t.frames) == "number", e)
 
         animation[i].name   = t.name
-        animation[i].offset = t.offset
+        animation[i].sprite = t.sprite
         animation[i].frames = t.frames
     end
     

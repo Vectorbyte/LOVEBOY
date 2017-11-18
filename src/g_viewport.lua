@@ -17,7 +17,11 @@ local viewport = {
 -- Initialize
 function viewport:initialize(path)
     -- Tileset
-    local tile = graphics:import(path)
+    local tile, err = graphics:import(path)
+    if not tile then
+        error(err)
+    end
+    
     for k, v in pairs(tile) do 
         self[k] = v
     end 
@@ -35,11 +39,43 @@ end
 ----------------------------
     -- Draw
 ----------------------------
+function viewport:set_animation(name, state)
+    local t = {"stop", "pause", "play"}
+    for _, v in ipairs(t) do
+        if state == v then
+            self.animation[name].state = state
+        end
+    end
+end
+
+function viewport:buffer_animation(name, x, y)
+    local a = self.animation[name]
+    local s = self.sprite[a.sprite]
+    local x = math.floor(x or 0)
+    local y = math.floor(y or 0)
+    local f = math.floor(a.frame)
+    for i, quad in ipairs(s.quad) do
+        local ofs = s.offset + (s.width*s.height)*(f - 1) + s.width*(i - 1)
+        quad:setViewport(ofs*8, 0, s.width*8, 8)
+        self.batch:add(quad, x, y + ((i - 1)*8))
+    end
+end
+
 function viewport:buffer_sprite(name, x, y)
     local x = math.floor(x or 0)
     local y = math.floor(y or 0)
     for i, quad in ipairs(self.sprite[name].quad) do
         self.batch:add(quad, x, y + ((i - 1)*8))
+    end
+end
+
+function viewport:update(dt)
+    for _, a in ipairs(self.animation) do
+        if animation.state == "play" then
+            a.frame = (a.frame + dt*a.speed)%(a.frames + 1)            
+        elseif a.state == "stop" then
+            a.frame = 1
+        end
     end
 end
 
