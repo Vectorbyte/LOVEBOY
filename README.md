@@ -1,5 +1,5 @@
 # LOVEBOY
-A custom file format for storing 2-bit colored 8x8 tile sprites and animations and it's renderer.
+A custom file format for storing 2-bit colored 8x8 tile sprites and animations and its renderer.
 
 ```lua
 -- Export file structure
@@ -37,7 +37,8 @@ return {
         {
             name = "RUNA", -- Animation name accessing
             sprite = "GOLD", -- First frame sprite name
-            frames = 0, -- Number of frames in the animation
+            frames = 1, -- Number of frames in the animation
+            speed  = 1, -- Animation speed
         },
     },
 }
@@ -49,16 +50,24 @@ function love.load()
     
     -- Initialize LOVEBOY viewport
     viewport = require "g_viewport"
-    viewport:initialize("tileset.gfx")
+    viewport:initialize("tileset.gfx") -- load tileset.gfx file containing all the graphics data
 
     -- Export file from definition table in export.lua file
     viewport:export("export")
+end
+
+-- Update
+function love.update(dt)
+    viewport:update(dt)
 end
 
 -- Drawing sprites
 function love.draw()
     -- Set sprite named "GOLD" to draw at position 20, 10 when spritebatch is drawn
     viewport:buffer_sprite("GOLD", 20, 10)
+
+    -- Draw "RUNA" animation in position 20, 10
+    viewport:buffer_animation("RUNA", 20, 10)
 
     -- Flush the spritebatch and draw the viewport canvas
     viewport:draw()
