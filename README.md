@@ -1,8 +1,8 @@
 # LOVEBOY
 A custom file format for storing 2-bit colored 8x8 tile sprites and animations and its renderer.
 
+export.lua:
 ```lua
--- Export file structure
 return {
     palette = "palette.png", -- 16x16 palette
     
@@ -42,7 +42,9 @@ return {
         },
     },
 }
-
+```
+main.lua:
+```lua
 -- Loading the .gfx graphics data file and initializing the GBC-style renderer 
 function love.load()
     -- Set filter
