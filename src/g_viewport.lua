@@ -15,9 +15,9 @@ local viewport = {
 }
 
 -- Initialize
-function viewport:initialize()
+function viewport:initialize(path)
     -- Tileset
-    local tile = graphics:import("export.gfx")
+    local tile = graphics:import(path)
     for k, v in pairs(tile) do 
         self[k] = v
     end 
@@ -25,6 +25,11 @@ function viewport:initialize()
     -- Tile data
     self.batch = love.graphics.newSpriteBatch(self.tile, 1024, "dynamic")
     self.shader:send("palette", self.palette)
+end
+
+-- Export file
+function viewport:export(path)
+    graphics:export(path)
 end
 
 ----------------------------
