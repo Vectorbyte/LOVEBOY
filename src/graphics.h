@@ -8,7 +8,7 @@ struct gfxheader_t
 {
     // Magic and Palette
     uint32_t magic;
-    uint16_t palette[256];
+    uint16_t palette[64];
     
     // Offsets and counts
     uint16_t ofs_tile, ofs_sprite, ofs_animation;

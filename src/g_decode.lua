@@ -118,9 +118,9 @@ end
 
 -- Converts palette into an image
 function convert_palette(v)
-    local data = love.image.newImageData(256, 1)
+    local data = love.image.newImageData(64, 1)
     
-    for i = 0, 255 do
+    for i = 0, 63 do
         local p = convert_rgb15a1_rgba8(v[i])
         data:setPixel(i, 0, p[1], p[2], p[3], p[4])
     end

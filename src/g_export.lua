@@ -19,12 +19,12 @@ function export_palette(v)
     local w, h = data:getDimensions()
     
     -- Check for correct palette size
-    assert(w == 16 and h == 16, "export_palette(): Invalid palette size, must be 16x16 pixels.")
+    assert(w == 8 and h == 8, "export_palette(): Invalid palette size, must be 8x7 pixels.")
     
-    local ret = ffi.new("uint16_t[256]", {[0]=1})
-    for y = 0, 15 do
-        for x = 0, 15 do
-            local n = y*16 + x
+    local ret = ffi.new("uint16_t[64]", {[0]=1})
+    for y = 0, 7 do
+        for x = 0, 7 do
+            local n = y*8 + x
             ret[n] = convert_rgba8_rgb15a1({data:getPixel(x, y)})
         end
     end
@@ -32,7 +32,7 @@ function export_palette(v)
     return ret
 end
 
-function export_tile(v)
+function export_tile(v, s)
     local data = love.image.newImageData(v.image)
     local w, h = data:getDimensions()
     local x, y = w/8, h/8
@@ -49,59 +49,64 @@ function export_tile(v)
     local ofs_t = ffi.sizeof("struct gfxheader_t")
     local num_t = x*y
     local tile  = ffi.new("struct tile_t[?]", num_t)
-    local x_max, y_max = x - 1, y - 1
-    for y = 0, y_max do
-        for x = 0, x_max do
-            local ret = ffi.new("uint8_t[64]", {[0]=1})
-            local n = y*(x_max + 1) + x
-            
-            -- For each pixel
-            for i = 0, 63 do
-                local nx = i%8 + x*8
-                local ny = math.floor(i/8) + y*8
-                local px = {data:getPixel(nx, ny)}
+    local n     = 0
+    for i, sprite in ipairs(s) do
+        local sx, sy = sprite.start_x, sprite.start_y
+        local x_max, y_max = sprite.width - 1 + sx, sprite.height - 1 + sy
+        for y = sy, y_max do
+            for x = sx, x_max do
+                local ret = ffi.new("uint8_t[64]", {[0]=1})
                 
-                -- Compare with color values
-                local c = 0
-                c = color_eq(px, v.color[1]) and 0 or c
-                c = color_eq(px, v.color[2]) and 1 or c
-                c = color_eq(px, v.color[3]) and 2 or c
-                c = color_eq(px, v.color[4]) and 3 or c
+                -- For each pixel
+                for i = 0, 63 do
+                    local nx = i%8 + x*8
+                    local ny = math.floor(i/8) + y*8
+                    local px = {data:getPixel(nx, ny)}
+                    
+                    -- Compare with color values
+                    local c = 0
+                    local n = math.min(n, #v.color - 1)
+                    c = color_eq(px, v.color[n + 1][1]) and 0 or c
+                    c = color_eq(px, v.color[n + 1][2]) and 1 or c
+                    c = color_eq(px, v.color[n + 1][3]) and 2 or c
+                    c = color_eq(px, v.color[n + 1][4]) and 3 or c
+                    
+                    ret[i] = ffi.cast("uint8_t", c)
+                end
                 
-                ret[i] = ffi.cast("uint8_t", c)
+                local color = ffi.new("uint8_t[4]", {[0]=1})
+                local n_ret = ffi.new("uint8_t[16]", {[0]=1})
+                
+                -- Cast palette index values
+                for i = 0, 3 do
+                    local index = v.index[n + 1] or v.index[1]
+                    color[i] = ffi.cast("uint8_t", index[i + 1])
+                end
+                
+                -- Cast bitmap
+                for i = 0, 63, 4 do
+                    local e = 0
+                    
+                    -- Shift
+                    local a = bit.lshift(ret[i + 0], 0x00)
+                    local b = bit.lshift(ret[i + 1], 0x02)
+                    local c = bit.lshift(ret[i + 2], 0x04)
+                    local d = bit.lshift(ret[i + 3], 0x06)
+                    
+                    -- Assign
+                    e = bit.bor(e, a)
+                    e = bit.bor(e, b)
+                    e = bit.bor(e, c)
+                    e = bit.bor(e, d)
+                    
+                    n_ret[i/4] = ffi.cast("uint8_t", e)
+                end
+                
+                tile[n] = ffi.new("struct tile_t", {})
+                tile[n].color = color
+                tile[n].data  = n_ret
+                n = n + 1
             end
-            
-            local color = ffi.new("uint8_t[4]", {[0]=1})
-            local n_ret = ffi.new("uint8_t[16]", {[0]=1})
-            
-            -- Cast palette index values
-            for i = 0, 3 do
-                local index = v.index[n + 1] or v.index[1]
-                color[i] = ffi.cast("uint8_t", index[i + 1])
-            end
-            
-            -- Cast bitmap
-            for i = 0, 63, 4 do
-                local e = 0
-                
-                -- Shift
-                local a = bit.lshift(ret[i + 0], 0x00)
-                local b = bit.lshift(ret[i + 1], 0x02)
-                local c = bit.lshift(ret[i + 2], 0x04)
-                local d = bit.lshift(ret[i + 3], 0x06)
-                
-                -- Assign
-                e = bit.bor(e, a)
-                e = bit.bor(e, b)
-                e = bit.bor(e, c)
-                e = bit.bor(e, d)
-                
-                n_ret[i/4] = ffi.cast("uint8_t", e)
-            end
-            
-            tile[n] = ffi.new("struct tile_t", {})
-            tile[n].color = color
-            tile[n].data  = n_ret
         end
     end
     

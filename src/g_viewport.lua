@@ -9,7 +9,7 @@ local viewport = {
         vec4 effect(vec4 p, Image t, vec2 tc, vec2 sc) 
         {
             float a = texture2D(t, tc).r;
-            return texture2D(palette, vec2(a, 1.0));
+            return texture2D(palette, vec2(a*4, 1.0));
         }
     ]]),
 }
@@ -24,8 +24,8 @@ function viewport:initialize(path)
     
     for k, v in pairs(tile) do 
         self[k] = v
-    end 
-    
+    end
+ 
     -- Tile data
     self.batch = love.graphics.newSpriteBatch(self.tile, 1024, "dynamic")
     self.shader:send("palette", self.palette)
@@ -46,6 +46,10 @@ function viewport:set_animation(name, state)
             self.animation[name].state = state
         end
     end
+end
+
+function viewport:set_frame(name, frame)
+    self.animation[name].frame = math.floor(frame)
 end
 
 function viewport:buffer_animation(name, x, y)
