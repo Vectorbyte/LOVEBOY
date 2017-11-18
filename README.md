@@ -26,7 +26,7 @@ return {
     
     sprite = {
         {
-            name = "GOLD", -- Sprite name for ease of access
+            name = "GOLD", -- Sprite name access
             width = 4, -- Sprite width in 8x8 tiles
             height = 7, -- Sprite height in 8x8 tiles
             offset = 0, -- Sprite offset in 8x8 tiles
@@ -35,8 +35,8 @@ return {
     
     animation = {
         {
-            name = "RUNA", -- Animation name for ease of access
-            offset = 0, -- Animation offset in 8x8 tiles, coincides with the first frame's sprite offset
+            name = "RUNA", -- Animation name accessing
+            sprite = "GOLD", -- First frame sprite name
             frames = 0, -- Number of frames in the animation
         },
     },
