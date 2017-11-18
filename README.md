@@ -1,5 +1,5 @@
 # LOVEBOY
-A custom file format for storing 2-bit colored 8x8 tile sprites and animations and its renderer.
+A custom file format for storing 2-bit colored 8x8 tile sprites and animations, and its renderer.
 
 Made for several purposes: data compression, offering a unified file format for game graphics, and just emulating the look of the gameboy or gameboy color. Note that not all limitations are properly emulated, such as scanline color limits, amongst other things.
 
