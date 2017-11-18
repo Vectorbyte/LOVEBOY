@@ -10,10 +10,11 @@ return {
     
     tile = {
         image = "test.png", -- Sprite image, must be of a size divisible by 8
-        
+  
         -- Palette index values
         index = {
             -- First tile (and subsequent ones if no more index tables are provided)
+            -- All index operations are performed after tiles are laid out in a 1D stream
             [1] = {0, 1, 2, 3}, -- Palette index, ranges from 0 to 255
         },
         
@@ -21,6 +22,7 @@ return {
         -- Exporter converts these colors into a 2-bit index for the palette
         color = {
             -- First tile (and subsequent ones if no more color tables are provided)
+            -- All color operations are performed after tiles are laid out in a 1D stream
             [1] = {
                 {  0,   0,   0, 255}, -- Turns into Index 0 of the palette
                 {176,  72,  40, 255}, -- Turns into Index 1 of the palette
@@ -35,6 +37,10 @@ return {
             name = "GOLD", -- Sprite name access
             width = 4, -- Sprite width in 8x8 tiles
             height = 7, -- Sprite height in 8x8 tiles
+
+            start_x = -- Sprite starting point
+            start_y = -- Sprite ending point
+
             offset = 0, -- Sprite offset in 8x8 tiles
         },
     },
