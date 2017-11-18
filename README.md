@@ -1,6 +1,8 @@
 # LOVEBOY
 A custom file format for storing 2-bit colored 8x8 tile sprites and animations and its renderer.
 
+Made for several purposes: data compression, offering a unified file format for game graphics, and just emulating the look of the gameboy or gameboy color. Note that not all limitations are properly emulated, such as scanline color limits, amongst other things.
+
 export.lua:
 ```lua
 return {
@@ -11,16 +13,20 @@ return {
         
         -- Palette index values
         index = {
+            -- First tile (and subsequent ones if no more index tables are provided)
             [1] = {0, 1, 2, 3}, -- Palette index, ranges from 0 to 255
         },
         
         -- Parse color values
         -- Exporter converts these colors into a 2-bit index for the palette
         color = {
-            {  0,   0,   0, 255}, -- Turns into Index 0 of the palette
-            {176,  72,  40, 255}, -- Turns into Index 1 of the palette
-            {200, 144,  96, 255}, -- Turns into Index 2 of the pallete
-            {248, 248, 248, 255}, -- Turns into Index 4 of the pallete
+            -- First tile (and subsequent ones if no more color tables are provided)
+            [1] = {
+                {  0,   0,   0, 255}, -- Turns into Index 0 of the palette
+                {176,  72,  40, 255}, -- Turns into Index 1 of the palette
+                {200, 144,  96, 255}, -- Turns into Index 2 of the pallete
+                {248, 248, 248, 255}, -- Turns into Index 4 of the pallete
+            }
         },
     },
     
