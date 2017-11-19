@@ -38,8 +38,8 @@ return {
             width = 4, -- Sprite width in 8x8 tiles
             height = 7, -- Sprite height in 8x8 tiles
 
-            start_x = -- Sprite starting point
-            start_y = -- Sprite ending point
+            start_x = 0, -- Sprite starting point
+            start_y = 0, -- Sprite ending point
 
             offset = 0, -- Sprite offset in 8x8 tiles
         },
