@@ -22,7 +22,7 @@ function viewport:initialize(path)
         error(err)
     end
     
-    for k, v in pairs(tile) do 
+    for k, v in pairs(tile) do
         self[k] = v
     end
  
@@ -102,6 +102,10 @@ function viewport:draw()
     -- Get the lesser scale factor and draw
     local s = (sw < sh) and sw or sh
     love.graphics.draw(self.canvas, cx, cy, 0, s, s, w2/2, h2/2)
+    
+    love.graphics.setShader(self.shader)
+    love.graphics.draw(self.tile, 0, 256)
+    love.graphics.setShader()
 end
 
 return viewport

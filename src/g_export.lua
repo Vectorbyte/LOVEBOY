@@ -13,27 +13,50 @@ local function color_eq(a, b)
     return true
 end
 
+-- Convert image into palette colorspace
+local function palettize(image, palette)
+    local data = love.image.newImageData(image)
+    local x_max = data:getWidth() - 1
+    local y_max = data:getHeight() - 1
+    for y = 0, y_max do
+        for x = 0, x_max do
+            local a = {data:getPixel(x, y)}
+            local b = 0
+            for i = 0, 63 do
+                if color_eq(palette[i], a) then
+                    b = i
+                    break
+                end
+            end
+            data:setPixel(x, y, b, 0, 0, 0)
+        end
+    end
+    return data
+end
+
 -- Export
 function export_palette(v)
     local data = love.image.newImageData(v)
     local w, h = data:getDimensions()
     
     -- Check for correct palette size
-    assert(w == 8 and h == 8, "export_palette(): Invalid palette size, must be 8x7 pixels.")
+    assert(w == 8 and h == 8, "export_palette(): Invalid palette size, must be 8x8 pixels.")
     
     local ret = ffi.new("uint16_t[64]", {[0]=1})
+    local val = {}
     for y = 0, 7 do
         for x = 0, 7 do
             local n = y*8 + x
-            ret[n] = convert_rgba8_rgb15a1({data:getPixel(x, y)})
+            val[n] = {data:getPixel(x, y)}
+            ret[n] = convert_rgba8_rgb15a1(val[n])
         end
     end
     
-    return ret
+    return ret, val
 end
 
-function export_tile(v, s)
-    local data = love.image.newImageData(v.image)
+function export_tile(v, s, p)
+    local data = palettize(v, p)
     local w, h = data:getDimensions()
     local x, y = w/8, h/8
     
@@ -51,25 +74,41 @@ function export_tile(v, s)
     local tile  = ffi.new("struct tile_t[?]", num_t)
     local n     = 0
     for i, sprite in ipairs(s) do
-        local sx, sy = sprite.start_x, sprite.start_y
-        local x_max, y_max = sprite.width - 1 + sx, sprite.height - 1 + sy
+        local sx, sy = sprite.x, sprite.y
+        local x_max, y_max = sprite.w - 1 + sx, sprite.h - 1 + sy
         for y = sy, y_max do
             for x = sx, x_max do
                 local ret = ffi.new("uint8_t[64]", {[0]=1})
+                local color_lookup = {}
                 
                 -- For each pixel
                 for i = 0, 63 do
                     local nx = i%8 + x*8
                     local ny = math.floor(i/8) + y*8
-                    local px = {data:getPixel(nx, ny)}
-                    
+                    local px = data:getPixel(nx, ny)
+
                     -- Compare with color values
                     local c = 0
-                    local n = math.min(n, #v.color - 1)
-                    c = color_eq(px, v.color[n + 1][1]) and 0 or c
-                    c = color_eq(px, v.color[n + 1][2]) and 1 or c
-                    c = color_eq(px, v.color[n + 1][3]) and 2 or c
-                    c = color_eq(px, v.color[n + 1][4]) and 3 or c
+                    if #color_lookup < 4 then
+                        local add = true
+                        for j = 1, #color_lookup do
+                            if px == color_lookup[j] then
+                                add = false
+                                break
+                            end
+                        end
+                        
+                        if add then
+                            color_lookup[#color_lookup + 1] = px
+                        end
+                    end
+                    
+                    for j = 1, #color_lookup do
+                        if px == color_lookup[j] then
+                            c = j - 1
+                            break
+                        end
+                    end
                     
                     ret[i] = ffi.cast("uint8_t", c)
                 end
@@ -79,8 +118,8 @@ function export_tile(v, s)
                 
                 -- Cast palette index values
                 for i = 0, 3 do
-                    local index = v.index[n + 1] or v.index[1]
-                    color[i] = ffi.cast("uint8_t", index[i + 1])
+                    local index = color_lookup[i + 1] or 0
+                    color[i] = ffi.cast("uint8_t", index)
                 end
                 
                 -- Cast bitmap
@@ -123,14 +162,14 @@ function export_sprite(v, ofs, num)
         local e = "export_sprite: bad data type in export table value."
         
         -- Check data types
+        assert(type(t.w) == "number"     , e)
+        assert(type(t.h) == "number"     , e)
         assert(type(t.name) == "string"  , e)
-        assert(type(t.width) == "number" , e)
-        assert(type(t.height) == "number", e)
         assert(type(t.offset) == "number", e)
-    
+        
         sprite[i].name   = t.name
-        sprite[i].width  = t.width
-        sprite[i].height = t.height
+        sprite[i].width  = t.w
+        sprite[i].height = t.h
         sprite[i].offset = t.offset
     end
     

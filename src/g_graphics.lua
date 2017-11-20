@@ -101,10 +101,10 @@ function graphics:export(data)
     header.magic = 0x31584647
 
     -- Palette
-    header.palette = export_palette(data.palette)
+    header.palette, palette = export_palette(data.palette)
 
     -- Convert tile, sprite and animation data
-    local t, ofs_t, num_t = export_tile(data.tile, data.sprite)
+    local t, ofs_t, num_t = export_tile(data.tileset, data.sprite, palette)
     local s, ofs_s, num_s = export_sprite(data.sprite, ofs_t, num_t)
     local a, ofs_a, num_a = export_animation(data.animation, ofs_s, num_s)
 
@@ -131,7 +131,7 @@ function graphics:export(data)
     love.filesystem.append("export.gfx", ns)
     love.filesystem.append("export.gfx", na)
     file:close()
-
+    
     collectgarbage("restart")
 end
 
