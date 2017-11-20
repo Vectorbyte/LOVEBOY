@@ -22,10 +22,10 @@ function viewport:initialize(path)
         error(err)
     end
     
-    for k, v in pairs(tile) do
+    for k, v in pairs(tile) do 
         self[k] = v
     end
- 
+    
     -- Tile data
     self.batch = love.graphics.newSpriteBatch(self.tile, 1024, "dynamic")
     self.shader:send("palette", self.palette)

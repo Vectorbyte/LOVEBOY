@@ -157,6 +157,7 @@ function export_sprite(v, ofs, num)
     local num_s = #v
     local sprite = ffi.new("struct sprite_t[?]", num_s)
     
+    local ofs = 0
     for i = 0, num_s - 1 do
         local t = v[i + 1]
         local e = "export_sprite: bad data type in export table value."
@@ -165,12 +166,15 @@ function export_sprite(v, ofs, num)
         assert(type(t.w) == "number"     , e)
         assert(type(t.h) == "number"     , e)
         assert(type(t.name) == "string"  , e)
-        assert(type(t.offset) == "number", e)
+        
+        if i > 0 then
+            ofs = ofs + v[i].w*v[i].h
+        end
         
         sprite[i].name   = t.name
         sprite[i].width  = t.w
         sprite[i].height = t.h
-        sprite[i].offset = t.offset
+        sprite[i].offset = ofs
     end
     
     return sprite, ofs_s, num_s
