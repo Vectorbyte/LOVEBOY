@@ -11,18 +11,17 @@ return {
 
     sprite = {
         {
-            name = "GOLD", -- Sprite name access
+            name = "GOLD", -- Sprite name, must be 4 characters, UTF-8
             x = 0, -- Sprite starting point
             y = 0, -- Sprite ending point
             w = 4, -- Sprite width in 8x8 tiles
             h = 7, -- Sprite height in 8x8 tiles
-            offset = 0, -- Sprite offset in 8x8 tiles
         },
     },
     
     animation = {
         {
-            name = "RUNA", -- Animation name accessing
+            name = "RUNA", -- Animation name, must be 4 characters, UTF-8
             sprite = "GOLD", -- First frame sprite name
             frames = 1, -- Number of frames in the animation
             speed  = 1, -- Animation speed
